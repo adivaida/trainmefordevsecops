@@ -18,10 +18,9 @@ agent any
 
 
     stage('Build-and-Tag') {
-    /* This builds the actual image; synonymous to
-         * docker build on the command line */
       steps{
-        sh 'echo Build and Tag'
+         script {
+            app = docker.build("adiv/snack:${env.BUILD_ID}") 
           }
     }
 
