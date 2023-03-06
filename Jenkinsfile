@@ -1,135 +1,52 @@
-//stage 'Build'
+pipeline {
+agent any
 
- 
+   stages {
 
- node ('Ubuntu-app-agent'){
- 
-       
-	   def app
+    stage('Cloning Git') {
 
-   try {
-
-     notifyBuild('STARTED')
-
-					
-					
-		stage('Cloning Git') {
+      steps
+        {
         /* Let's make sure we have the repository cloned to our workspace */
+        checkout scmGit(branches: [[name: '*/email-notification']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/adivaida/trainmefordevsecops']])        }
+    }
+    stage('SAST'){
+      steps{
+        sh 'echo SAST stage'
+       }
+    }
 
-       checkout scm
-		}
-     
-		stage('SAST') {
-               //build 'SECURITY-SAST-SNYK'
-               sh 'echo "SAST Test passed "' }
-        
-    
 
-		stage('Build-and-Tag') {
-        /* This builds the actual image; synonymous to
+    stage('Build-and-Tag') {
+    /* This builds the actual image; synonymous to
          * docker build on the command line */
+      steps{
+        sh 'echo Build and Tag'
+          }
+    }
 
-        app = docker.build("amrit96/snake")
-		}
+    stage('Post-to-dockerhub') {
+     steps {
+        sh 'echo post to dockerhub repo'
+     }
+    }
 
-    
-	       stage('Post-to-dockerhub') {
-       
-     /// docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-     ///       app.push("latest")
-     ///   			}
-         }
-		stage('SECURITY-IMAGE-SCANNER'){
-       // build 'SECURITY-IMAGE-SCANNER-AQUAMICROSCANNER'
+    stage('SECURITY-IMAGE-SCANNER'){
+      steps {
+        sh 'echo scan image for security'
+     }
+    }
 
-           sh 'echo "Image Vulnerability Test passed"'
-        
-		}
+    stage('Pull-image-server') {
+      steps {
+         sh 'echo pulling image ...'
+       }
+      }
 
-		
-     
-     
-
-		stage('Pull-image-server') {
-
-        /// 		sh "docker-compose down"
-        ///		sh "docker-compose up -d"			
-		}
-   
-		stage('DAST') {
-        
-			node('Ubuntu-app-agent'){
-           // build 'OWASP-ZAP' 
-
-            sh 'echo "DAST Test passed"'
-			}
-        
-		}			
-					
-
-     /* ... existing build steps ... */
-
- 
-
-   } catch (e) {
-
-     // If there was an exception thrown, the build failed
-
-     currentBuild.result = "FAILED"
-
-     throw e
-
-   } finally {
-
-     // Success or failure, always send notifications
-
-     notifyBuild(currentBuild.result)
-
-   }
-
+    stage('DAST') {
+      steps  {
+         sh 'echo dast scan for security'
+        }
+    }
  }
-
- 
-
- def notifyBuild(String buildStatus = 'STARTED') {
-
-   // build status of null means successful
-
-   buildStatus =  buildStatus ?: 'SUCCESSFUL'
-
- 
-
-   // Default values
-
-  
-
-   def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
-
-   def summary = "${subject} (${env.BUILD_URL})"
-
-   def details = """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-     <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>"""
-
- 
-
-
- 
-
-   // Send notifications
-
-  
- 
-
-   emailext (
-
-       subject: subject,
-
-       body: details,
-	   mimeType: 'text/html',
-
-      // recipientProviders: [[$class: 'DevelopersRecipientProvider']]
-	   to: 'trainmefordevsecops@gmail.com'
-
-     )
-
- }
+}
