@@ -16,7 +16,7 @@ pipeline {
         stage('SAST') {
             environment {
                 SONAR_SCANNER_VERSION = '4.7.0.2747'
-                SONAR_TOKEN=credentials(adi-sonar)
+                SONAR_TOKEN=credentials('adi-sonar')
                 SONAR_SCANNER_HOME = "$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux"
                 PATH = "$SONAR_SCANNER_HOME/bin:$PATH"
                 SONAR_SCANNER_OPTS = '-server'
