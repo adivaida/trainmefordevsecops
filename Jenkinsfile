@@ -27,22 +27,27 @@ pipeline {
                 }
             }
         }
-        stage('Post-to-dockerhub') {
-        steps {
-            sh 'echo post to dockerhub repo'
+        stage('Post to Docker Hub  ') {
+            steps {
+                script {
+                docker.withRegistry('https://registry.hub.docker.com','dockerhub') {
+                    app.push("${env.BUILD_ID}")
+                    }
+                }
+                }
         }
-        }
-
         stage('SECURITY-IMAGE-SCANNER'){
         steps {
             sh 'echo scan image for security'
         }
         }
 
-        stage('Pull-image-server') {
-        steps {
-            sh 'echo pulling image ...'
-        }
+        stage('Pull image Server  ') {
+            steps {
+                     sh 'docker-compose down'
+                     sh 'docker-compose up'
+                
+                }
         }
 
         stage('DAST') {
