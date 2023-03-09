@@ -47,10 +47,13 @@ pipeline {
                 }
                 }
         }
-        stage('SECURITY-IMAGE-SCANNER'){
-        steps {
-            sh 'echo scan image for security'
-        }
+        stage('Image and Vulnerabilty Scan') {
+            steps {
+                script {
+                    def imageId = "adiv/snack:${env.BUILD_ID}"
+                    anchoreImageScan(imageId: imageId, failOnPolicy: true, vulnTypeFailThreshold: 10)
+                }
+            }
         }
 
         stage('Pull image Server  ') {
