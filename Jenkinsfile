@@ -60,10 +60,13 @@ pipeline {
                 
                 }
         }
-
         stage('DAST') {
-        steps  {
-            sh 'echo dast scan for security'
+            steps {
+                arachniScanner(
+                    url: 'http://34.245.220.198:80',
+                    checks: 'xss, sql_injection',
+                    reportFilename: 'arachni_report.html'
+                )
             }
         }
     }
